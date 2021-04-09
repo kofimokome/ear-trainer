@@ -8,7 +8,6 @@ class Game extends StatefulWidget {
 }
 
 class _GameData extends State<Game> {
-  bool _isSuccessful = false;
   var _items = [
     {'position': 1, 'id': 1, 'color': Colors.green},
     {'position': 2, 'id': 2, 'color': Colors.red},
@@ -19,11 +18,18 @@ class _GameData extends State<Game> {
   _updatePositions(from, to) {
     var fromPosition = _items[from]['position'];
     var toPosition = _items[to]['position'];
+    _items[from]['position'] = toPosition;
+    _items[to]['position'] = fromPosition;
 
     setState(() {
-      _items[from]['position'] = toPosition;
-      _items[to]['position'] = fromPosition;
+      _items.sort((a, b) =>
+          a['position'].toString().compareTo(b['position'].toString()));
+      print(_items);
     });
+  }
+
+  _canUpdatePosition(from, to) {
+    return from != to;
   }
 
   @override
@@ -41,7 +47,7 @@ class _GameData extends State<Game> {
                 return DragTarget(
                   builder: (context, candidateData, rejectedData) {
                     return Draggable(
-                      data: e['id'],
+                      data: _items.indexOf(e),
                       childWhenDragging: ElevatedButton(
                         onPressed: null,
                         child: Container(
@@ -83,10 +89,11 @@ class _GameData extends State<Game> {
                       ),
                     );
                   },
+                  onWillAccept: (data) {
+                    return _canUpdatePosition(data, _items.indexOf(e));
+                  },
                   onAccept: (data) {
-                    setState(() {
-                      _isSuccessful = true;
-                    });
+                    _updatePositions(data, _items.indexOf(e));
                   },
                 );
               }),
