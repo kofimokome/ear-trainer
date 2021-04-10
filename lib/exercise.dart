@@ -17,8 +17,12 @@ class Exercise {
       'answer': ['d4', 'c4', 'b4', 'a4']
     },
     {
-      'title': 'Arrange in order do fa do soh', // question 4
+      'title': 'Arrange in the order << do fa do soh >>', // question 4
       'answer': ['c4', 'f4', 'c4', 'g4']
+    },
+    {
+      'title': 'Arrange in the order << la soh fa soh >>',
+      'answer': ['a4', 'g4', 'f4', 'g4']
     },
     {
       'title': 'Arrange in descending order',
@@ -28,16 +32,6 @@ class Exercise {
       'title': 'Arrange in ascending order',
       'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4']
     }
-  ];
-
-  // repetition because {}..addAll(question['answer'] removes duplicated values
-  final _answers = const [
-    ['a4', 'b4', 'c4', 'd4'],
-    ['f4', 'g4'],
-    ['d4', 'c4', 'b4', 'a4'],
-    ['c4', 'f4', 'c4', 'g4'],
-    ['c4', 'a4'],
-    ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4']
   ];
 
   final _colors = [
