@@ -1,6 +1,9 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'dart:math';
+
+import '../exercise.dart';
 
 class Game extends StatefulWidget {
   @override
@@ -11,15 +14,29 @@ class Game extends StatefulWidget {
 
 class _GameData extends State<Game> {
   AudioCache player = new AudioCache(fixedPlayer: AudioPlayer());
+  Exercise _exercise = Exercise();
+  var _question;
+  var _answer;
 
-  var _items = [
-    {'position': 1, 'id': 1, 'color': Colors.green, 'file': 'c4.mp3'},
-    {'position': 2, 'id': 2, 'color': Colors.red, 'file': 'g4.mp3'},
-    {'position': 4, 'id': 4, 'color': Colors.orange, 'file': 'g4.mp3'},
-    {'position': 3, 'id': 3, 'color': Colors.blue, 'file': 'c4.mp3'},
-  ];
+  var _items = [];
+
+  _GameData() {
+    _question = _exercise.getQuestion;
+    print(_question['answer']);
+    _answer = _question['answer'];
+    var temp = shuffle(_answer);
+    for (var i = 0; i < temp.length; i++) {
+      _items.add({
+        'position': i + 1,
+        'color': _exercise.colorOf(temp[i]),
+        'file': temp[i] + '.mp3',
+        'note': temp[i]
+      });
+    }
+  }
 
   _updatePositions(from, to) {
+    print(from.toString() + ' ' + to.toString());
     var fromPosition = _items[from]['position'];
     var toPosition = _items[to]['position'];
     _items[from]['position'] = toPosition;
@@ -28,7 +45,6 @@ class _GameData extends State<Game> {
     setState(() {
       _items.sort((a, b) =>
           a['position'].toString().compareTo(b['position'].toString()));
-      print(_items);
     });
   }
 
@@ -39,17 +55,41 @@ class _GameData extends State<Game> {
   playLocal(file) async {
     await player.play(file);
     await player.fixedPlayer.resume();
-    print(player.fixedPlayer.state);
-    //int result = await audioPlayer.play("assets/c4.mp3", isLocal: true);
+  }
+
+  List shuffle(List items) {
+    var random = new Random();
+
+    // Go through all elements.
+    for (var i = items.length - 1; i > 0; i--) {
+      // Pick a pseudorandom number according to the list length
+      var n = random.nextInt(i + 1);
+
+      var temp = items[i];
+      items[i] = items[n];
+      items[n] = temp;
+    }
+
+    return items;
+  }
+
+  _checkAnswer() {
+    print("correct");
+    print(_question['answer']);
+
+
+    //print(responses.toList());
+    print('and');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(),
-        body: Column(children: [
+        body: Center(
+            child: Column(children: [
           Text(
-            "Arrange the sounds in ascending order",
+            _question['title'],
             style: TextStyle(fontSize: 25),
           ),
           Row(
@@ -110,6 +150,12 @@ class _GameData extends State<Game> {
               }),
             ],
           ),
-        ]));
+          ElevatedButton(
+              onPressed: _checkAnswer,
+              child: Text(
+                "Submit",
+                style: TextStyle(fontSize: 28),
+              ))
+        ])));
   }
 }
