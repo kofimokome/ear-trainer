@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kofimokome.ear_trainer">
-   <application
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <application
         android:label="ear_trainer"
         android:icon="@mipmap/ic_launcher">
         <activity

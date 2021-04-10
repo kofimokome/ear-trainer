@@ -1,6 +1,7 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 
 import '../exercise.dart';
@@ -16,15 +17,14 @@ class _GameData extends State<Game> {
   AudioCache player = new AudioCache(fixedPlayer: AudioPlayer());
   Exercise _exercise = Exercise();
   var _question;
-  var _answer;
+  var _isCorrect = null;
 
   var _items = [];
 
   _GameData() {
     _question = _exercise.getQuestion;
     print(_question['answer']);
-    _answer = _question['answer'];
-    var temp = shuffle(_answer);
+    var temp = _shuffle(_question['answer']);
     for (var i = 0; i < temp.length; i++) {
       _items.add({
         'position': i + 1,
@@ -52,12 +52,50 @@ class _GameData extends State<Game> {
     return from != to;
   }
 
+  _showResult() {
+    if (_isCorrect == null) {
+      return Container();
+    } else if (_isCorrect) {
+      return Container(
+        child: Text(
+          'Correct',
+          style: TextStyle(color: Colors.green, fontSize: 28),
+        ),
+      );
+    } else {
+      return Container(
+        child: Text(
+          'Incorrect',
+          style: TextStyle(color: Colors.red, fontSize: 28),
+        ),
+      );
+    }
+  }
+
   playLocal(file) async {
     await player.play(file);
     await player.fixedPlayer.resume();
   }
 
-  List shuffle(List items) {
+  _checkAnswer() {
+    print("correct");
+    var responses = _items.map((e) {
+      return e['note'];
+    });
+    var result = _exercise.verifyAnswer(_question['id'], responses.toList());
+    print(result);
+    setState(() {
+      _isCorrect = result;
+    });
+    if (result) {
+    } else {
+      HapticFeedback.vibrate();
+    }
+    //print(responses.toList());
+    print('and');
+  }
+
+  List _shuffle(List items) {
     var random = new Random();
 
     // Go through all elements.
@@ -71,15 +109,6 @@ class _GameData extends State<Game> {
     }
 
     return items;
-  }
-
-  _checkAnswer() {
-    print("correct");
-    print(_question['answer']);
-
-
-    //print(responses.toList());
-    print('and');
   }
 
   @override
@@ -155,7 +184,8 @@ class _GameData extends State<Game> {
               child: Text(
                 "Submit",
                 style: TextStyle(fontSize: 28),
-              ))
+              )),
+          _showResult(),
         ])));
   }
 }
