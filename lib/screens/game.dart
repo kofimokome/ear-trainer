@@ -1,4 +1,6 @@
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class Game extends StatefulWidget {
   @override
@@ -8,11 +10,13 @@ class Game extends StatefulWidget {
 }
 
 class _GameData extends State<Game> {
+  AudioCache player = new AudioCache(fixedPlayer: AudioPlayer());
+
   var _items = [
-    {'position': 1, 'id': 1, 'color': Colors.green},
-    {'position': 2, 'id': 2, 'color': Colors.red},
-    {'position': 4, 'id': 4, 'color': Colors.orange},
-    {'position': 3, 'id': 3, 'color': Colors.blue},
+    {'position': 1, 'id': 1, 'color': Colors.green, 'file': 'c4.mp3'},
+    {'position': 2, 'id': 2, 'color': Colors.red, 'file': 'g4.mp3'},
+    {'position': 4, 'id': 4, 'color': Colors.orange, 'file': 'g4.mp3'},
+    {'position': 3, 'id': 3, 'color': Colors.blue, 'file': 'c4.mp3'},
   ];
 
   _updatePositions(from, to) {
@@ -30,6 +34,13 @@ class _GameData extends State<Game> {
 
   _canUpdatePosition(from, to) {
     return from != to;
+  }
+
+  playLocal(file) async {
+    await player.play(file);
+    await player.fixedPlayer.resume();
+    print(player.fixedPlayer.state);
+    //int result = await audioPlayer.play("assets/c4.mp3", isLocal: true);
   }
 
   @override
@@ -62,7 +73,7 @@ class _GameData extends State<Game> {
                                 MaterialStateProperty.all<Color>(Colors.grey)),
                       ),
                       child: ElevatedButton(
-                        onPressed: null,
+                        onPressed: () => playLocal(e['file']),
                         child: Container(
                           width: 50,
                           height: 50,
