@@ -3,21 +3,41 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Exercise {
-  final _questions = [
+  final _questions = const [
     {
       'title': 'Arrange in ascending order',
-      'answer': ['a4', 'b4', 'c4', 'd4'],
+      'answer': ['a4', 'b4', 'c4', 'd4'], // question 1
+    },
+    {
+      'title': 'Arrange in ascending order', // question 2
+      'answer': ['f4', 'g4'],
+    },
+    {
+      'title': 'Arrange in descending order', // question 3
+      'answer': ['d4', 'c4', 'b4', 'a4']
+    },
+    {
+      'title': 'Arrange in order do fa do soh', // question 4
+      'answer': ['c4', 'f4', 'c4', 'g4']
     },
     {
       'title': 'Arrange in descending order',
-      'answer': ['d4', 'c4', 'b4', 'a4']
+      'answer': ['c4', 'a4']
+    },
+    {
+      'title': 'Arrange in ascending order',
+      'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4']
     }
   ];
 
-  // see how to fix the issue of answer changing after sorting from game.dart file
-  final _answers = [
+  // repetition because {}..addAll(question['answer'] removes duplicated values
+  final _answers = const [
     ['a4', 'b4', 'c4', 'd4'],
-    ['d4', 'c4', 'b4', 'a4']
+    ['f4', 'g4'],
+    ['d4', 'c4', 'b4', 'a4'],
+    ['c4', 'f4', 'c4', 'g4'],
+    ['c4', 'a4'],
+    ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4']
   ];
 
   final _colors = [
@@ -28,11 +48,11 @@ class Exercise {
     {'note': 'c-4', 'color': Colors.indigo},
     {'note': 'd4', 'color': Colors.yellow},
     {'note': 'd-4', 'color': Colors.black},
-    {'note': 'e4', 'color': Colors.indigoAccent},
+    {'note': 'e4', 'color': Colors.brown},
     {'note': 'f4', 'color': Colors.pink},
     {'note': 'f-4', 'color': Colors.cyan},
     {'note': 'g4', 'color': Colors.purple},
-    {'note': 'g-4', 'color': Colors.tealAccent},
+    {'note': 'g-4', 'color': Colors.teal},
   ];
 
   MaterialColor colorOf(String note) {
@@ -48,16 +68,26 @@ class Exercise {
     Random random = new Random();
     var index = random.nextInt(_questions.length);
     var question = _questions[index];
+    List temp = question['answer'];
+    var answer = [];
+    for (var i = 0; i < temp.length; i++) {
+      answer.add(temp[i]);
+    }
+    /*Set a = {}..addAll(question['answer']);
     return {
       ...{'id': index},
-      ...question
+      ...{'title': question['title'], 'answer': a.toList()}
+    };*/
+    return {
+      ...{'id': index},
+      ...{'title': question['title'], 'answer': answer},
     };
   }
 
   bool verifyAnswer(index, answer) {
     print(answer);
-    print(_answers[index]);
-    return _areListsEqual(answer, _answers[index]);
+    print(_questions[index]['answer']);
+    return _areListsEqual(answer, _questions[index]['answer']);
   }
 
   bool _areListsEqual(var list1, var list2) {
