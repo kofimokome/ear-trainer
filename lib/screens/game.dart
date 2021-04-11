@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
+import 'package:vibration/vibration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../exercise.dart';
 
@@ -20,6 +22,9 @@ class _GameData extends State<Game> {
   Exercise _exercise = Exercise();
   var _question;
   var _isCorrect;
+  int _level = 0;
+  bool _loading = true;
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   var _items = [];
 
@@ -27,8 +32,13 @@ class _GameData extends State<Game> {
     _getQuestion();
   }
 
-  _getQuestion() {
-    _question = _exercise.getQuestion;
+  init() async {
+    await _getQuestion();
+    return this;
+  }
+
+  _getQuestion() async {
+    _question = await _exercise.getQuestion(_level);
     print(_question);
     var temp = _shuffle(_question['answer']);
     _items = [];
@@ -40,11 +50,12 @@ class _GameData extends State<Game> {
         'note': temp[i]
       });
     }
-    if (_isCorrect != null) {
-      setState(() {
+    setState(() {
+      _loading = false;
+      if (_isCorrect != null) {
         _isCorrect = null;
-      });
-    }
+      }
+    });
   }
 
   _updatePositions(from, to) {
@@ -89,7 +100,7 @@ class _GameData extends State<Game> {
     await player.fixedPlayer.resume();
   }
 
-  _checkAnswer() {
+  _checkAnswer() async {
     var responses = _items.map((e) {
       return e['note'];
     });
@@ -99,20 +110,22 @@ class _GameData extends State<Game> {
       _isCorrect = result;
     });
     if (result) {
+      final SharedPreferences prefs = await _prefs;
+      if (prefs.containsKey('level')) {
+        int level = prefs.getInt('level');
+        _level = level + 1;
+        prefs.setInt('level', _level);
+      } else {
+        prefs.setInt('level', 1);
+        _level = 1;
+      }
+      print('level');
+      print(prefs.getInt('level'));
+      player.play('tada.mp3');
     } else {
-      HapticFeedback.heavyImpact();
-      sleep(
-        const Duration(milliseconds: 180),
-      );
-      HapticFeedback.heavyImpact();
-      sleep(
-        const Duration(milliseconds: 180),
-      );
-      HapticFeedback.heavyImpact();
-      sleep(
-        const Duration(milliseconds: 180),
-      );
-      HapticFeedback.heavyImpact();
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate();
+      }
     }
   }
 
@@ -134,111 +147,138 @@ class _GameData extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: Center(
-            child: (_isCorrect != null && _isCorrect)
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Congratulations',
-                        style: TextStyle(color: Colors.green, fontSize: 30),
-                      ),
-                      ElevatedButton(
-                          onPressed: _getQuestion, child: Text('Next Exercise'))
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                        Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: Text(
-                            _question['title'],
-                            style: TextStyle(fontSize: 25),
+    return _loading
+        ? Scaffold(
+            body: Center(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.audiotrack_rounded,
+                      size: 28,
+                    ),
+                    Text(
+                      'loading...',
+                      style: TextStyle(fontSize: 28),
+                    ),
+                  ]),
+            ),
+          )
+        : Scaffold(
+            body: Center(
+                child: (_isCorrect != null && _isCorrect)
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Congratulations !!!',
+                            style: TextStyle(color: Colors.green, fontSize: 40),
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ..._items.map((e) {
-                              return DragTarget(
-                                builder:
-                                    (context, candidateData, rejectedData) {
-                                  return Draggable(
-                                    data: _items.indexOf(e),
-                                    childWhenDragging: ElevatedButton(
-                                      onPressed: null,
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                      ),
-                                      style: ButtonStyle(
-                                          shape: MaterialStateProperty
-                                              .all<CircleBorder>(CircleBorder(
-                                                  side: BorderSide(
-                                                      color: Colors.green))),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.grey)),
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () => playLocal(e['file']),
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                      ),
-                                      style: ButtonStyle(
-                                          shape: MaterialStateProperty
-                                              .all<CircleBorder>(CircleBorder(
-                                                  side: BorderSide(
-                                                      color: Colors.green))),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  e['color'])),
-                                    ),
-                                    feedback: ElevatedButton(
-                                      onPressed: null,
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                      ),
-                                      style: ButtonStyle(
-                                          shape: MaterialStateProperty
-                                              .all<CircleBorder>(CircleBorder(
-                                                  side: BorderSide(
-                                                      color: Colors.green))),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  e['color'])),
-                                    ),
-                                  );
-                                },
-                                onWillAccept: (data) {
-                                  return _canUpdatePosition(
-                                      data, _items.indexOf(e));
-                                },
-                                onAccept: (data) {
-                                  _updatePositions(data, _items.indexOf(e));
-                                },
-                              );
-                            }),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: ElevatedButton(
-                              onPressed: _checkAnswer,
+                          ElevatedButton(
+                              onPressed: _getQuestion,
                               child: Text(
-                                "Submit",
+                                'Next Exercise',
                                 style: TextStyle(fontSize: 28),
-                              )),
-                        ),
-                        _showResult(),
-                      ])));
+                              ))
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                            Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Text(
+                                _question['title'],
+                                style: TextStyle(fontSize: 25),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ..._items.map((e) {
+                                  return DragTarget(
+                                    builder:
+                                        (context, candidateData, rejectedData) {
+                                      return Draggable(
+                                        data: _items.indexOf(e),
+                                        childWhenDragging: ElevatedButton(
+                                          onPressed: null,
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                          style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                      CircleBorder>(
+                                                  CircleBorder(
+                                                      side: BorderSide(
+                                                          color:
+                                                              Colors.green))),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all<
+                                                      Color>(Colors.grey)),
+                                        ),
+                                        child: ElevatedButton(
+                                          onPressed: () => playLocal(e['file']),
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                          style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                      CircleBorder>(
+                                                  CircleBorder(
+                                                      side: BorderSide(
+                                                          color:
+                                                              Colors.green))),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all<
+                                                      Color>(e['color'])),
+                                        ),
+                                        feedback: ElevatedButton(
+                                          onPressed: null,
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                          style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                      CircleBorder>(
+                                                  CircleBorder(
+                                                      side: BorderSide(
+                                                          color:
+                                                              Colors.green))),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all<
+                                                      Color>(e['color'])),
+                                        ),
+                                      );
+                                    },
+                                    onWillAccept: (data) {
+                                      return _canUpdatePosition(
+                                          data, _items.indexOf(e));
+                                    },
+                                    onAccept: (data) {
+                                      _updatePositions(data, _items.indexOf(e));
+                                    },
+                                  );
+                                }),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: ElevatedButton(
+                                  onPressed: _checkAnswer,
+                                  child: Text(
+                                    "Submit",
+                                    style: TextStyle(fontSize: 28),
+                                  )),
+                            ),
+                            _showResult(),
+                          ])));
   }
 }
