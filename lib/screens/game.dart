@@ -22,8 +22,10 @@ class _GameData extends State<Game> {
   Exercise _exercise = Exercise();
   var _question;
   var _isCorrect;
-  int _level = 0;
+  int _level = 10;
+  int _currentQuestion = 0;
   bool _loading = true;
+  final _highestLevel = 8;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   var _items = [];
@@ -38,8 +40,31 @@ class _GameData extends State<Game> {
   }
 
   _getQuestion() async {
-    _question = await _exercise.getQuestion(_level);
-    print(_question);
+    final SharedPreferences prefs = await _prefs;
+    if (prefs.containsKey('level')) {
+      _level = prefs.getInt('level');
+    } else {
+      prefs.setInt('level', 1);
+    }
+    if (prefs.containsKey('currentQuestion')) {
+      _currentQuestion = prefs.getInt('currentQuestion');
+    }
+    if (_level >= _highestLevel) {
+      final currentQuestion = prefs.getInt('currentQuestion');
+      print(currentQuestion);
+      if (_currentQuestion > 0) {
+        _question = await _exercise.getQuestion(currentQuestion);
+      } else {
+        _question = await _exercise.getQuestion(currentQuestion, skip: true);
+      }
+      print("here");
+    } else {
+      print('not here');
+      _question = await _exercise.getQuestion(_level);
+    }
+    _currentQuestion = _question['id'] + 1;
+    prefs.setInt('currentQuestion', _currentQuestion);
+
     var temp = _shuffle(_question['answer']);
     _items = [];
     for (var i = 0; i < temp.length; i++) {
@@ -111,14 +136,14 @@ class _GameData extends State<Game> {
     });
     if (result) {
       final SharedPreferences prefs = await _prefs;
-      if (prefs.containsKey('level')) {
-        int level = prefs.getInt('level');
-        _level = level + 1;
-        prefs.setInt('level', _level);
+      if (_level < _highestLevel) {
+        _level = _level + 1;
+        prefs.setInt('level', 15);
       } else {
-        prefs.setInt('level', 1);
-        _level = 1;
+        _currentQuestion = 0;
+        prefs.setInt('currentQuestion', 0);
       }
+
       print('level');
       print(prefs.getInt('level'));
       player.play('tada.mp3');

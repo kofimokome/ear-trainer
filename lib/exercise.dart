@@ -71,6 +71,8 @@ class Exercise {
     },
   ];
 
+  // 15 questions
+
   final _colors = [
     {'note': 'a4', 'color': Colors.green},
     {'note': 'a-4', 'color': Colors.red},
@@ -84,7 +86,6 @@ class Exercise {
     {'note': 'f-4', 'color': Colors.cyan},
     {'note': 'g4', 'color': Colors.purple},
     {'note': 'g-4', 'color': Colors.teal},
-
     {'note': 'a5', 'color': Colors.green.shade300},
     {'note': 'a-5', 'color': Colors.red.shade300},
     {'note': 'b5', 'color': Colors.blue.shade300},
@@ -99,7 +100,7 @@ class Exercise {
     {'note': 'g-5', 'color': Colors.teal.shade300},
   ];
 
-   colorOf(String note) {
+  colorOf(String note) {
     for (var i = 0; i < _colors.length; i++) {
       if (_colors[i]['note'] == note) {
         return _colors[i]['color'];
@@ -108,7 +109,7 @@ class Exercise {
     return Colors.green;
   }
 
-  Future<Object> getQuestion(int lvl) async {
+  Future<Object> getQuestion(int lvl, {skip = false}) async {
     final SharedPreferences prefs = await _prefs;
     int level = 1;
     int index;
@@ -118,8 +119,9 @@ class Exercise {
     } else if (prefs.containsKey('level')) {
       level = prefs.getInt('level');
       print('question level ' + level.toString());
+      print(skip);
     }
-    if (level <= _questions.length) {
+    if (level <= _questions.length && skip == false) {
       index = level - 1;
     } else {
       index = random.nextInt(_questions.length);
