@@ -9,6 +9,7 @@ import 'package:vibration/vibration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../exercise.dart';
+import '../components/singleQuestion.dart';
 
 class Game extends StatefulWidget {
   @override
@@ -220,80 +221,11 @@ class _GameData extends State<Game> {
                                 style: TextStyle(fontSize: 25),
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ..._items.map((e) {
-                                  return DragTarget(
-                                    builder:
-                                        (context, candidateData, rejectedData) {
-                                      return Draggable(
-                                        data: _items.indexOf(e),
-                                        childWhenDragging: ElevatedButton(
-                                          onPressed: null,
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                          ),
-                                          style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                      CircleBorder>(
-                                                  CircleBorder(
-                                                      side: BorderSide(
-                                                          color:
-                                                              Colors.green))),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(Colors.grey)),
-                                        ),
-                                        child: ElevatedButton(
-                                          onPressed: () => playLocal(e['file']),
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                          ),
-                                          style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                      CircleBorder>(
-                                                  CircleBorder(
-                                                      side: BorderSide(
-                                                          color:
-                                                              Colors.green))),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(e['color'])),
-                                        ),
-                                        feedback: ElevatedButton(
-                                          onPressed: null,
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                          ),
-                                          style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                      CircleBorder>(
-                                                  CircleBorder(
-                                                      side: BorderSide(
-                                                          color:
-                                                              Colors.green))),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(e['color'])),
-                                        ),
-                                      );
-                                    },
-                                    onWillAccept: (data) {
-                                      return _canUpdatePosition(
-                                          data, _items.indexOf(e));
-                                    },
-                                    onAccept: (data) {
-                                      _updatePositions(data, _items.indexOf(e));
-                                    },
-                                  );
-                                }),
-                              ],
-                            ),
+                            SingleQuestion(
+                                canUpdateCallback: _canUpdatePosition,
+                                question: _question,
+                                items: _items,
+                                updatePositionCallback: _updatePositions),
                             Padding(
                               padding: const EdgeInsets.all(18.0),
                               child: ElevatedButton(

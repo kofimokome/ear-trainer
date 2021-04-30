@@ -9,65 +9,102 @@ class Exercise {
   final _questions = [
     {
       'title': 'Arrange the notes in descending order',
-      'answer': ['c4', 'a4']
+      'answer': ['c4', 'a4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in ascending order',
       'answer': ['f4', 'g4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in ascending order',
       'answer': ['f4', 'g4', 'a5'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in descending order',
       'answer': ['f4', 'e4', 'd4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in descending order',
       'answer': ['f4', 'e4', 'd4', 'c4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in descending order',
-      'answer': ['d4', 'c4', 'b4', 'a4']
+      'answer': ['d4', 'c4', 'b4', 'a4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in ascending order',
       'answer': ['a4', 'b4', 'c4', 'd4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in ascending order',
-      'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4', 'f-4']
+      'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4', 'f-4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in descending order',
-      'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4', 'f-4'].reversed.toList()
+      'answer': ['c4', 'c4', 'd4', 'e4', 'f4', 'f-4', 'f-4'].reversed.toList(),
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in the order << do fa soh >>',
-      'answer': ['c4', 'f4', 'g4']
+      'answer': ['c4', 'f4', 'g4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in the order << do fa soh la >>',
-      'answer': ['c4', 'f4', 'g4', 'a5']
+      'answer': ['c4', 'f4', 'g4', 'a5'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in the order << do fa do soh >>',
-      'answer': ['c4', 'f4', 'c4', 'g4']
+      'answer': ['c4', 'f4', 'c4', 'g4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title': 'Arrange the notes in the order << la soh fa soh >>',
-      'answer': ['a5', 'g4', 'f4', 'g4']
+      'answer': ['a5', 'g4', 'f4', 'g4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title':
           'Arrange the 1st 2 notes in ascending order and the last 2 notes in descending order',
-      'answer': ['e5', 'f5', 'e4', 'd4']
+      'answer': ['e5', 'f5', 'e4', 'd4'],
+      'shuffle': true,
+      'single': true
     },
     {
       'title':
           'Arrange the 1st 4 notes in ascending order and the last 4 notes in descending order',
-      'answer': ['e5', 'f5', 'g5', 'a5', 'g4', 'f4', 'e4', 'd4']
+      'answer': ['e5', 'f5', 'g5', 'a5', 'g4', 'f4', 'e4', 'd4'],
+      'shuffle': true,
+      'single': true
+    },
+    {
+      'title': 'Which note is <<fa>>',
+      'answer': ['e5'],
+      'notes': ['e5', 'f5', 'g5', 'a5', 'g4', 'f4', 'e4', 'd4'],
+      'shuffle': true,
+      'single': false
     },
   ];
 
