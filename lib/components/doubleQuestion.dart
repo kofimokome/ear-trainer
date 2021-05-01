@@ -2,30 +2,32 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class SingleQuestion extends StatelessWidget {
+class DoubleQuestion extends StatelessWidget {
   final question;
   final Function updatePositionCallback;
   final Function canUpdateCallback;
   final Function playSoundCallback;
   final items;
+  final responseArea;
 
-  SingleQuestion({
+  DoubleQuestion({
     @required this.updatePositionCallback,
     @required this.question,
     @required this.items,
+    @required this.responseArea,
     @required this.canUpdateCallback,
     @required this.playSoundCallback,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
       children: [
-        ...items.map((e) {
-          return DragTarget(
-            builder: (context, candidateData, rejectedData) {
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ...items.map((e) {
               return Draggable(
                 data: items.indexOf(e),
                 childWhenDragging: ElevatedButton(
@@ -65,15 +67,47 @@ class SingleQuestion extends StatelessWidget {
                           MaterialStateProperty.all<Color>(e['color'])),
                 ),
               );
-            },
-            onWillAccept: (data) {
-              return this.canUpdateCallback(data, items.indexOf(e));
-            },
-            onAccept: (data) {
-              this.updatePositionCallback(data, items.indexOf(e));
-            },
-          );
-        }),
+            }),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: Text("Drag the sound into the box below"),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            top: 20,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              DragTarget(
+                builder: (context, candidateData, rejectedData) {
+                  return ElevatedButton(
+                    onPressed: null,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                    ),
+                    style: ButtonStyle(
+                        shape: MaterialStateProperty.all<CircleBorder>(
+                            CircleBorder(
+                                side: BorderSide(color: Colors.black))),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            responseArea['color'])),
+                  );
+                },
+                onWillAccept: (data) {
+                  return this.canUpdateCallback(data, 0, single: false);
+                },
+                onAccept: (data) {
+                  this.updatePositionCallback(data, 0, single: false);
+                },
+              )
+            ],
+          ),
+        )
       ],
     );
   }

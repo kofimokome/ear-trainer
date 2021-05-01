@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../exercise.dart';
 import '../components/singleQuestion.dart';
+import '../components/doubleQuestion.dart';
 
 class Game extends StatefulWidget {
   @override
@@ -19,7 +20,7 @@ class Game extends StatefulWidget {
 }
 
 class _GameData extends State<Game> {
-  AudioCache player = new AudioCache(fixedPlayer: AudioPlayer());
+  static AudioCache player = new AudioCache(fixedPlayer: AudioPlayer());
   Exercise _exercise = Exercise();
   var _question;
   var _isCorrect;
@@ -30,6 +31,7 @@ class _GameData extends State<Game> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   var _items = [];
+  var _responseArea = {'position': 0, 'color': Colors.black54, 'note': '0'};
 
   _GameData() {
     _getQuestion();
@@ -44,6 +46,7 @@ class _GameData extends State<Game> {
     final SharedPreferences prefs = await _prefs;
     if (prefs.containsKey('level')) {
       _level = prefs.getInt('level');
+      _level = _level > _highestLevel ? _highestLevel : _level;
     } else {
       prefs.setInt('level', 1);
     }
@@ -66,7 +69,9 @@ class _GameData extends State<Game> {
     _currentQuestion = _question['id'] + 1;
     prefs.setInt('currentQuestion', _currentQuestion);
 
-    var temp = _shuffle(_question['answer']);
+    var temp = _question['shuffle']
+        ? _shuffle(_question['answer'])
+        : _question['answer'];
     _items = [];
     for (var i = 0; i < temp.length; i++) {
       _items.add({
@@ -84,21 +89,36 @@ class _GameData extends State<Game> {
     });
   }
 
-  _updatePositions(from, to) {
-    print(from.toString() + ' ' + to.toString());
-    var fromPosition = _items[from]['position'];
-    var toPosition = _items[to]['position'];
-    _items[from]['position'] = toPosition;
-    _items[to]['position'] = fromPosition;
+  _updatePositions(from, to, {single: true}) {
+    if (single) {
+      print(from.toString() + ' ' + to.toString());
+      var fromPosition = _items[from]['position'];
+      var toPosition = _items[to]['position'];
+      _items[from]['position'] = toPosition;
+      _items[to]['position'] = fromPosition;
 
-    setState(() {
-      _items.sort((a, b) =>
-          a['position'].toString().compareTo(b['position'].toString()));
-    });
+      setState(() {
+        _items.sort((a, b) =>
+            a['position'].toString().compareTo(b['position'].toString()));
+      });
+    } else {
+      setState(() {
+        _responseArea['color'] = _items[from]['color'];
+        _responseArea['note'] = _items[from]['note'];
+      });
+    }
   }
 
-  _canUpdatePosition(from, to) {
-    return from != to;
+  _canUpdatePosition(from, to, {single: true}) {
+    if (single) {
+      return from != to;
+    } else {
+      setState(() {
+        _responseArea['color'] = Colors.black54;
+        _responseArea['note'] = '0';
+      });
+      return true;
+    }
   }
 
   _showResult() {
@@ -122,14 +142,24 @@ class _GameData extends State<Game> {
   }
 
   playLocal(file) async {
-    await player.play(file);
-    await player.fixedPlayer.resume();
+    player.fixedPlayer.stop().then((value) => {
+          player.fixedPlayer.release().then((value) => {
+                player.fixedPlayer.play(file, isLocal: true)
+                //.then((value) => player.fixedPlayer.resume())
+              })
+        });
+    // await player.fixedPlayer.resume();
   }
 
   _checkAnswer() async {
-    var responses = _items.map((e) {
-      return e['note'];
-    });
+    var responses;
+    if (_question['single']) {
+      responses = _items.map((e) {
+        return e['note'];
+      });
+    } else {
+      responses = {_responseArea['note']};
+    }
     var result = _exercise.verifyAnswer(_question['id'], responses.toList());
     print(result);
     setState(() {
@@ -221,11 +251,22 @@ class _GameData extends State<Game> {
                                 style: TextStyle(fontSize: 25),
                               ),
                             ),
-                            SingleQuestion(
-                                canUpdateCallback: _canUpdatePosition,
-                                question: _question,
-                                items: _items,
-                                updatePositionCallback: _updatePositions),
+                            ...{
+                              _question['single']
+                                  ? SingleQuestion(
+                                      canUpdateCallback: _canUpdatePosition,
+                                      question: _question,
+                                      items: _items,
+                                      updatePositionCallback: _updatePositions,
+                                      playSoundCallback: playLocal)
+                                  : DoubleQuestion(
+                                      canUpdateCallback: _canUpdatePosition,
+                                      question: _question,
+                                      items: _items,
+                                      updatePositionCallback: _updatePositions,
+                                      responseArea: _responseArea,
+                                      playSoundCallback: playLocal)
+                            },
                             Padding(
                               padding: const EdgeInsets.all(18.0),
                               child: ElevatedButton(

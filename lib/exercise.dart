@@ -26,6 +26,13 @@ class Exercise {
       'single': true
     },
     {
+      'title': 'Which note is <<fa>>',
+      'answer': ['e5'],
+      'notes': ['e5', 'f5', 'g5', 'a5', 'g4', 'f4', 'e4', 'd4'],
+      'shuffle': true,
+      'single': false
+    },
+    {
       'title': 'Arrange the notes in descending order',
       'answer': ['f4', 'e4', 'd4'],
       'shuffle': true,
@@ -164,7 +171,7 @@ class Exercise {
       index = random.nextInt(_questions.length);
     }
     var question = _questions[index];
-    List temp = question['answer'];
+    List temp = question['single'] ? question['answer'] : question['notes'];
     var answer = [];
     for (var i = 0; i < temp.length; i++) {
       answer.add(temp[i]);
@@ -178,7 +185,9 @@ class Exercise {
       ...{'id': index},
       ...{
         'title': (index + 1).toString() + ': ' + question['title'],
-        'answer': answer
+        'answer': answer,
+        'single': question['single'],
+        'shuffle': question['shuffle']
       },
     };
   }
