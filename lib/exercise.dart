@@ -25,13 +25,57 @@ class Exercise {
       'shuffle': true,
       'single': true
     },
+    // move down down
     {
-      'title': 'Which note is <<fa>>',
-      'answer': ['e5'],
-      'notes': ['e5', 'f5', 'g5', 'a5', 'g4', 'f4', 'e4', 'd4'],
+      'title': 'Which note is <<doh>>',
+      'answer': ['d4'],
+      'notes': ['d4', 'e4', 'f-4'],
       'shuffle': true,
       'single': false
     },
+    {
+      'title': 'Which note is <<doh>>',
+      'answer': ['c4'],
+      'notes': ['c4', 'd4', 'e4', 'f4'],
+      'shuffle': true,
+      'single': false
+    },
+    {
+      'title': 'Which note is <<fa>>',
+      'answer': ['f4'],
+      'notes': ['c4', 'd4', 'e4', 'f4'],
+      'shuffle': true,
+      'single': false
+    },
+    {
+      'title': 'Which note is <<fa>>',
+      'answer': ['f4'],
+      'notes': ['c4', 'd4', 'e4', 'f4', 'g4', 'a5', 'b5', 'c5'],
+      'shuffle': true,
+      'single': false
+    },
+    {
+      'title': 'Which note is <<fa>>',
+      'answer': ['f4'],
+      'notes': ['c4', 'd4', 'e4', 'f4', 'g4', 'a5', 'b5', 'c5'],
+      'shuffle': false,
+      'single': false
+    },
+    {
+      'title': 'Which note is not in the scale',
+      'answer': ['f-4'],
+      'notes': ['c4', 'd4', 'e4', 'f-4', 'g4', 'a5', 'b5', 'c5'],
+      'shuffle': false,
+      'single': false
+    },
+    {
+      'title': 'Which note is <<doh>>',
+      'answer': ['c4'],
+      'notes': ['c4', 'd4', 'e4', 'f4', 'g4', 'a5', 'b5'],
+      'shuffle': true,
+      'single': false
+    },
+    // move down up
     {
       'title': 'Arrange the notes in descending order',
       'answer': ['f4', 'e4', 'd4'],
@@ -170,6 +214,7 @@ class Exercise {
     } else {
       index = random.nextInt(_questions.length);
     }
+    index = 3;
     var question = _questions[index];
     List temp = question['single'] ? question['answer'] : question['notes'];
     var answer = [];

@@ -43,6 +43,7 @@ class _GameData extends State<Game> {
   }
 
   _getQuestion() async {
+    _responseArea = {'position': 0, 'color': Colors.black54, 'note': '0'};
     final SharedPreferences prefs = await _prefs;
     if (prefs.containsKey('level')) {
       _level = prefs.getInt('level');
@@ -144,7 +145,7 @@ class _GameData extends State<Game> {
   playLocal(file) async {
     player.fixedPlayer.stop().then((value) => {
           player.fixedPlayer.release().then((value) => {
-                player.fixedPlayer.play(file, isLocal: true)
+                player.play(file)
                 //.then((value) => player.fixedPlayer.resume())
               })
         });
